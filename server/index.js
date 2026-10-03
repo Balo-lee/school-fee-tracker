@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
 const authRoutes = require("./routes/auth");
+const feeCategoryRoutes = require("./routes/feeCategories");
 
 const app = express();
 const PORT = 5000;
@@ -9,6 +10,7 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/admin/fee-categories", feeCategoryRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is running 🎉");
