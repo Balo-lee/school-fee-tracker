@@ -2,13 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
 const authRoutes = require("./routes/auth");
-app.use("/api/auth", authRoutes);
 
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is running 🎉");
@@ -22,6 +22,9 @@ app.get("/test-db", async (req, res) => {
     res.status(500).send("Database connection failed: " + err.message);
   }
 });
+
+const verifyToken = require("./middleware/verifyToken");
+const requireRole = require("./middleware/requireRole");
 
 app.listen(PORT, () => {
   console.log(`Server is listening on http://localhost:${PORT}`);
