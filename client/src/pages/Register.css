@@ -1,0 +1,26 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+  padding: 2rem 1rem;
+}
+
+.login-card.register-card {
+  max-width: 420px;
+}
+
+.register-success {
+  text-align: center;
+}
+
+.register-success h2 {
+  color: var(--color-primary);
+  margin-bottom: 0.6rem;
+}
+
+.register-success p {
+  color: #6b6b63;
+  margin-bottom: 1.5rem;
+}

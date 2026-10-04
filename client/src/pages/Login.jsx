@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -32,27 +33,34 @@ function Login() {
 
   return (
     <div className="login-page">
-      <h1>Crown Heights College</h1>
-      <p>Fee Management System</p>
+      <div className="login-card">
+        <img src="/logo.png" alt="Crown Heights College crest" className="login-logo" />
+        <h1>Crown Heights College</h1>
+        <p className="tagline">Fee Management System</p>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error && <p className="error-text">{error}</p>}
-        <button type="submit" className="btn-primary">Log In</button>
-      </form>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {error && <p className="error-text">{error}</p>}
+          <button type="submit" className="btn-primary">Log In</button>
+        </form>
+
+        <p className="login-footer">
+          Parent? <a href="/register">Register with your child's admission number</a>
+        </p>
+      </div>
     </div>
   );
 }

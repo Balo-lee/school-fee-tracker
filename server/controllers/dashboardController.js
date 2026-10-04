@@ -46,9 +46,14 @@ async function listStudents(req, res) {
   try {
     let query = `
       SELECT s.id, s.name, s.middle_name, s.class, s.admission_number,
-        COALESCE(SUM(p.amount_paid) FILTER (WHERE p.status = 'success'), 0) AS total_paid
+        COALESCE(SUM(p.amount_paid) FILTER (WHERE p.status = 'success'), 0) AS total_paid,
+        COALESCE(class_totals.total_expected, 0) AS total_expected
       FROM students s
       LEFT JOIN payments p ON p.student_id = s.id
+      LEFT JOIN (
+        SELECT class, SUM(amount) AS total_expected
+        FROM fee_structures WHERE is_active = true GROUP BY class
+      ) class_totals ON class_totals.class = s.class
     `;
     const params = [];
 
@@ -57,7 +62,8 @@ async function listStudents(req, res) {
       params.push(classFilter);
     }
 
-    query += " GROUP BY s.id ORDER BY s.class, s.name";
+    query +=
+      " GROUP BY s.id, class_totals.total_expected ORDER BY s.class, s.name";
 
     const result = await pool.query(query, params);
     res.json(result.rows);

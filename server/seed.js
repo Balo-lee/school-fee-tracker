@@ -405,7 +405,7 @@ async function seed() {
 
   console.log(`${studentIds.length} students inserted into the database.`);
 
-   // --- Group students by surname first, then form families from matching surnames ---
+  // --- Group students by surname first, then form families from matching surnames ---
   const studentsBySurname = {};
   for (const s of studentIds) {
     if (!studentsBySurname[s.surname]) studentsBySurname[s.surname] = [];
@@ -428,7 +428,10 @@ async function seed() {
         for (const sibling of familyStudents) {
           if (sibling.class !== twinClass) {
             sibling.class = twinClass; // update in memory, for the payments step later
-            await pool.query('UPDATE students SET class = $1 WHERE id = $2', [twinClass, sibling.id]);
+            await pool.query("UPDATE students SET class = $1 WHERE id = $2", [
+              twinClass,
+              sibling.id,
+            ]);
           }
         }
       }
@@ -437,7 +440,9 @@ async function seed() {
     }
   }
 
-  console.log(`${families.length} families formed from ${studentIds.length} students.`);
+  console.log(
+    `${families.length} families formed from ${studentIds.length} students.`,
+  );
 
   // --- Titles to mix across parents ---
   const titles = ["Mr.", "Mrs.", "Alhaji", "Alhaja", "Chief", "Dr.", "Engr."];
