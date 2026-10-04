@@ -1,0 +1,50 @@
+.children-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+}
+
+.child-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  border-top: 4px solid var(--color-primary);
+}
+
+.child-card h3 {
+  font-family: var(--font-heading);
+  margin-bottom: 0.2rem;
+}
+
+.child-card .child-meta {
+  color: #6b6b63;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.child-card .balance-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.child-card .balance-row .label {
+  color: #6b6b63;
+}
+
+.progress-bar-track {
+  background: #eee;
+  border-radius: 999px;
+  height: 8px;
+  margin: 0.8rem 0 1.2rem;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  background: var(--color-primary);
+  height: 100%;
+  border-radius: 999px;
+}

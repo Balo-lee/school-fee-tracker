@@ -4,6 +4,7 @@ const pool = require("./db");
 const authRoutes = require("./routes/auth");
 const feeCategoryRoutes = require("./routes/feeCategories");
 const dashboardRoutes = require("./routes/dashboard");
+const parentRoutes = require("./routes/parent");
 
 const app = express();
 const PORT = 5000;
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/admin/fee-categories", feeCategoryRoutes);
 app.use("/api/admin", dashboardRoutes);
+app.use("/api/parent", parentRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is running 🎉");

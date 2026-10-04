@@ -445,16 +445,41 @@ async function seed() {
   );
 
   // --- Titles to mix across parents ---
-  const titles = ["Mr.", "Mrs.", "Alhaji", "Alhaja", "Chief", "Dr.", "Engr."];
+  // --- Helper: find which tribe a surname belongs to ---
+  function findTribeForSurname(surname) {
+    for (const tribe in surnamesByTribe) {
+      if (surnamesByTribe[tribe].includes(surname)) return tribe;
+    }
+    return "Other";
+  }
 
   const parentPassword = await bcrypt.hash("Parent123!", 10);
   let parentCounter = 1;
   let totalParents = 0;
 
   for (const family of families) {
-    const surname = family[0].surname; // every student in this family shares a surname
-    const title = randomItem(titles);
-    const parentName = `${title} ${randomItem(muslimFirstNamesBoys.concat(christianFirstNamesBoys))} ${surname}`;
+    const surname = family[0].surname;
+    const tribe = findTribeForSurname(surname);
+    const isMuslim = Math.random() < (muslimProbabilityByTribe[tribe] || 0.5);
+    const isFather = Math.random() < 0.5;
+
+    let title, firstName;
+
+    if (isMuslim && isFather) {
+      title = "Alhaji";
+      firstName = randomItem(muslimFirstNamesBoys);
+    } else if (isMuslim && !isFather) {
+      title = "Alhaja";
+      firstName = randomItem(muslimFirstNamesGirls);
+    } else if (!isMuslim && isFather) {
+      title = randomItem(["Mr.", "Chief", "Dr.", "Engr."]);
+      firstName = randomItem(christianFirstNamesBoys);
+    } else {
+      title = randomItem(["Mrs.", "Dr."]);
+      firstName = randomItem(christianFirstNamesGirls);
+    }
+
+    const parentName = `${title} ${firstName} ${surname}`;
     const parentEmail = `parent${parentCounter}@example.com`;
 
     const parentResult = await pool.query(
@@ -465,7 +490,6 @@ async function seed() {
 
     const parentId = parentResult.rows[0].id;
 
-    // Link every child in this family to this parent
     for (const student of family) {
       await pool.query(`UPDATE students SET parent_id = $1 WHERE id = $2`, [
         parentId,

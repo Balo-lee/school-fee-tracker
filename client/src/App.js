@@ -6,6 +6,7 @@ import DirectorDashboard from "./pages/DirectorDashboard";
 import ParentDashboard from "./pages/ParentDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FeeCategories from "./pages/FeeCategories";
+import ChildFeeDetail from "./pages/ChildFeeDetail";
 
 function App() {
   return (
@@ -39,6 +40,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={["parent"]}>
             <ParentDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard/parent/child/:studentId"
+        element={
+          <ProtectedRoute allowedRoles={["parent"]}>
+            <ChildFeeDetail />
           </ProtectedRoute>
         }
       />
