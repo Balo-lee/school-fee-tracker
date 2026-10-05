@@ -422,16 +422,37 @@ async function seed() {
       }
       const familyStudents = group.splice(0, familySize);
 
-      // --- Twins: if this family has more than 1 child, 20% chance they're twins ---
-      if (familyStudents.length > 1 && Math.random() < 0.2) {
-        const twinClass = familyStudents[0].class;
-        for (const sibling of familyStudents) {
-          if (sibling.class !== twinClass) {
-            sibling.class = twinClass; // update in memory, for the payments step later
-            await pool.query("UPDATE students SET class = $1 WHERE id = $2", [
-              twinClass,
-              sibling.id,
-            ]);
+      if (familyStudents.length > 1) {
+        const areTwins = Math.random() < 0.2;
+
+        if (areTwins) {
+          const twinClass = familyStudents[0].class;
+          for (const sibling of familyStudents) {
+            if (sibling.class !== twinClass) {
+              sibling.class = twinClass;
+              await pool.query("UPDATE students SET class = $1 WHERE id = $2", [
+                twinClass,
+                sibling.id,
+              ]);
+            }
+          }
+        } else {
+          const usedClasses = new Set();
+          for (const sibling of familyStudents) {
+            let newClass = sibling.class;
+            let attempts = 0;
+            while (usedClasses.has(newClass) && attempts < 10) {
+              newClass = randomItem(classes);
+              attempts++;
+            }
+            usedClasses.add(newClass);
+            if (newClass !== sibling.class) {
+              sibling.class = newClass;
+              await pool.query("UPDATE students SET class = $1 WHERE id = $2", [
+                newClass,
+                sibling.id,
+              ]);
+            }
           }
         }
       }
