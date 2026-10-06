@@ -48,3 +48,18 @@
   height: 100%;
   border-radius: 999px;
 }
+
+.history-table-wrap {
+  margin-top: 2.5rem;
+}
+
+.download-link {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.download-link:hover {
+  text-decoration: underline;
+}
