@@ -8,6 +8,7 @@ function ChildFeeDetail() {
   const { studentId } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [payingFeeId, setPayingFeeId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +30,20 @@ function ChildFeeDetail() {
 
   function formatMoney(amount) {
     return `₦${parseFloat(amount).toLocaleString()}`;
+  }
+
+    async function handlePayNow(feeStructureId) {
+    setPayingFeeId(feeStructureId);
+    try {
+      const res = await api.post('/payments/initialize', {
+        studentId: student.id,
+        feeStructureId,
+      });
+      window.location.href = res.data.authorizationUrl;
+    } catch (err) {
+      alert('Failed to start payment: ' + (err.response?.data?.message || err.message));
+      setPayingFeeId(null);
+    }
   }
 
   function handleLogout() {
@@ -77,11 +92,17 @@ function ChildFeeDetail() {
                 <td>{formatMoney(amount)}</td>
                 <td>{formatMoney(paid)}</td>
                 <td>{formatMoney(balance)}</td>
-                <td>
+                                <td>
                   {isFullyPaid ? (
                     <span className="status-badge status-paid">PAID</span>
                   ) : (
-                    <button className="action-btn">Pay Now</button>
+                    <button
+                      className="action-btn"
+                      onClick={() => handlePayNow(fee.fee_structure_id)}
+                      disabled={payingFeeId === fee.fee_structure_id}
+                    >
+                      {payingFeeId === fee.fee_structure_id ? 'Redirecting...' : 'Pay Now'}
+                    </button>
                   )}
                 </td>
               </tr>

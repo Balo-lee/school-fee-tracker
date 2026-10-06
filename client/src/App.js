@@ -7,6 +7,7 @@ import ParentDashboard from "./pages/ParentDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FeeCategories from "./pages/FeeCategories";
 import ChildFeeDetail from "./pages/ChildFeeDetail";
+import PaymentCallback from "./pages/PaymentCallback";
 
 function App() {
   return (
@@ -52,6 +53,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/payment-callback" element={<PaymentCallback />} />
 
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
