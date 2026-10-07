@@ -1,5 +1,5 @@
-require('dotenv').config();
-console.log('DB Password being used: ', process.env.DB_PASSWORD);
+require("dotenv").config();
+console.log("DB Password being used: ", process.env.DB_PASSWORD);
 const { Pool } = require("pg");
 
 const pool = new Pool({
@@ -8,6 +8,9 @@ const pool = new Pool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   database: process.env.DB_NAME,
+  ssl: process.env.DB_HOST.includes("render.com")
+    ? { rejectUnauthorized: false }
+    : false,
 });
 
 module.exports = pool;
