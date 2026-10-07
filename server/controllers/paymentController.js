@@ -48,7 +48,7 @@ async function initializePayment(req, res) {
         reference,
         metadata: { studentId, feeStructureId, parentId },
         callback_url:
-          "https://https://school-fee-tracker-beige.vercel.app/.vercel.app/payment-callback",
+          "https://school-fee-tracker-beige.vercel.app/.vercel.app/payment-callback",
       },
       {
         headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
