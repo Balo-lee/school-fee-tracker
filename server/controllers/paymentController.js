@@ -47,7 +47,8 @@ async function initializePayment(req, res) {
         amount: amountInKobo,
         reference,
         metadata: { studentId, feeStructureId, parentId },
-        callback_url: "http://localhost:3000/payment-callback",
+        callback_url:
+          "https://https://school-fee-tracker-beige.vercel.app/.vercel.app/payment-callback",
       },
       {
         headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
