@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import './DirectorDashboard.css';
 import './ParentDashboard.css';
+import Loading from '../components/Loading';
 
 function ChildFeeDetail() {
   const { studentId } = useParams();
@@ -51,7 +52,7 @@ function ChildFeeDetail() {
     navigate('/login');
   }
 
-  if (loading) return <div className="dashboard">Loading...</div>;
+  if (loading) return <Loading text="Loading..." />;
   if (!data) return <div className="dashboard">Could not load this student's fees.</div>;
 
   const { student, fees } = data;

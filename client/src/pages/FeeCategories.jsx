@@ -5,6 +5,7 @@ import Modal from '../components/Modal';
 import '../components/Modal.css';
 import './DirectorDashboard.css';
 import './FeeCategories.css';
+import Loading from '../components/Loading';
 
 const ALL_CLASSES = ['JSS1', 'JSS2', 'JSS3', 'SS1', 'SS2', 'SS3'];
 
@@ -101,7 +102,7 @@ function FeeCategories() {
     return Object.values(grouped);
   }
 
-  if (loading) return <div className="dashboard">Loading fee categories...</div>;
+  if (loading) return <Loading text="Loading fee categories..." />;
 
   const groupedFees = groupFeeCategories();
 

@@ -104,4 +104,48 @@ async function listDefaulters(req, res) {
   }
 }
 
-module.exports = { getMetrics, listStudents, listDefaulters };
+async function createStudent(req, res) {
+  const { name, middleName, class: studentClass, admissionNumber } = req.body;
+
+  try {
+    const duplicate = await pool.query(
+      `SELECT id FROM students WHERE name = $1`,
+      [name],
+    );
+
+    if (duplicate.rows.length > 0 && !middleName) {
+      return res.status(409).json({
+        message:
+          "A student with this exact name already exists. Please provide a middle name to continue.",
+        needsMiddleName: true,
+      });
+    }
+
+    const admCheck = await pool.query(
+      `SELECT id FROM students WHERE admission_number = $1`,
+      [admissionNumber],
+    );
+    if (admCheck.rows.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "This admission number is already in use" });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO students (name, middle_name, class, admission_number)
+       VALUES ($1, $2, $3, $4) RETURNING id`,
+      [name, middleName || null, studentClass, admissionNumber],
+    );
+
+    res.status(201).json({
+      message: "Student added successfully",
+      studentId: result.rows[0].id,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to add student", error: err.message });
+  }
+}
+
+module.exports = { getMetrics, listStudents, listDefaulters, createStudent };

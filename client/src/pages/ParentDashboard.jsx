@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import './DirectorDashboard.css';
 import './ParentDashboard.css';
+import Loading from '../components/Loading';
 
 function ParentDashboard() {
   const [children, setChildren] = useState([]);
@@ -60,7 +61,7 @@ function ParentDashboard() {
   }
 
   if (loading) {
-    return <div className="dashboard">Loading your children's records...</div>;
+    return <Loading text="Loading your children's records..." />;
   }
 
   return (
