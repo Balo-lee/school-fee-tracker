@@ -1,33 +1,34 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import api from '../api/axios';
-import './DirectorDashboard.css';
-import './ParentDashboard.css';
-import Loading from '../components/Loading';
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../api/axios";
+import "./DirectorDashboard.css";
+import "./ParentDashboard.css";
+import Loading from "../components/Loading";
 
 function ParentDashboard() {
   const [children, setChildren] = useState([]);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [downloadingId, setDownloadingId] = useState(null);
 
-  const name = localStorage.getItem('name');
+  const name = localStorage.getItem("name");
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchChildren();
   }, []);
 
-    async function fetchChildren() {
+  async function fetchChildren() {
     setLoading(true);
     try {
       const [childrenRes, historyRes] = await Promise.all([
-        api.get('/parent/children'),
-        api.get('/parent/payment-history'),
+        api.get("/parent/children"),
+        api.get("/parent/payment-history"),
       ]);
       setChildren(childrenRes.data);
       setHistory(historyRes.data);
     } catch (err) {
-      console.error('Failed to load dashboard data', err);
+      console.error("Failed to load dashboard data", err);
     } finally {
       setLoading(false);
     }
@@ -37,27 +38,30 @@ function ParentDashboard() {
     return `₦${parseFloat(amount).toLocaleString()}`;
   }
 
-    async function handleDownloadReceipt(paymentId, receiptNumber) {
+  async function handleDownloadReceipt(paymentId, receiptNumber) {
+    setDownloadingId(paymentId);
     try {
       const response = await api.get(`/parent/receipts/${paymentId}`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', `${receiptNumber}.pdf`);
+      link.setAttribute("download", `${receiptNumber}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
     } catch (err) {
-      alert('Failed to download receipt');
+      alert("Failed to download receipt");
+    } finally {
+      setDownloadingId(null);
     }
   }
 
   function handleLogout() {
     localStorage.clear();
-    navigate('/login');
+    navigate("/login");
   }
 
   if (loading) {
@@ -71,7 +75,9 @@ function ParentDashboard() {
           <h1>Crown Heights College</h1>
           <p>Welcome, {name}</p>
         </div>
-        <button className="logout-btn" onClick={handleLogout}>Log Out</button>
+        <button className="logout-btn" onClick={handleLogout}>
+          Log Out
+        </button>
       </div>
 
       {children.length === 0 ? (
@@ -82,15 +88,24 @@ function ParentDashboard() {
             const paid = parseFloat(child.total_paid);
             const expected = parseFloat(child.total_expected);
             const balance = expected - paid;
-            const percent = expected > 0 ? Math.min((paid / expected) * 100, 100) : 0;
+            const percent =
+              expected > 0 ? Math.min((paid / expected) * 100, 100) : 0;
 
             return (
               <div className="child-card" key={child.id}>
-                <h3>{child.name}{child.middle_name ? ` ${child.middle_name}` : ''}</h3>
-                <p className="child-meta">{child.class} &bull; {child.admission_number}</p>
+                <h3>
+                  {child.name}
+                  {child.middle_name ? ` ${child.middle_name}` : ""}
+                </h3>
+                <p className="child-meta">
+                  {child.class} &bull; {child.admission_number}
+                </p>
 
                 <div className="progress-bar-track">
-                  <div className="progress-bar-fill" style={{ width: `${percent}%` }}></div>
+                  <div
+                    className="progress-bar-fill"
+                    style={{ width: `${percent}%` }}
+                  ></div>
                 </div>
 
                 <div className="balance-row">
@@ -102,7 +117,16 @@ function ParentDashboard() {
                   <span>{formatMoney(balance)}</span>
                 </div>
 
-                <Link to={`/dashboard/parent/child/${child.id}`} className="btn-primary" style={{ textDecoration: 'none', display: 'block', textAlign: 'center', marginTop: '1rem' }}>
+                <Link
+                  to={`/dashboard/parent/child/${child.id}`}
+                  className="btn-primary"
+                  style={{
+                    textDecoration: "none",
+                    display: "block",
+                    textAlign: "center",
+                    marginTop: "1rem",
+                  }}
+                >
                   View Details & Pay
                 </Link>
               </div>
@@ -110,7 +134,7 @@ function ParentDashboard() {
           })}
         </div>
       )}
-            <div className="history-table-wrap">
+      <div className="history-table-wrap">
         <h2>Payment History</h2>
         {history.length === 0 ? (
           <p>No payments made yet.</p>
@@ -135,10 +159,19 @@ function ParentDashboard() {
                   <td>
                     <button
                       className="download-link"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                      onClick={() => handleDownloadReceipt(h.payment_id, h.receipt_number)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        handleDownloadReceipt(h.payment_id, h.receipt_number)
+                      }
+                      disabled={downloadingId === h.payment_id}
                     >
-                      Download PDF
+                      {downloadingId === h.payment_id
+                        ? "Downloading..."
+                        : "Download PDF"}
                     </button>
                   </td>
                 </tr>
