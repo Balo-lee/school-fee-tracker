@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
-import './DirectorDashboard.css';
-import Loading from '../components/Loading';
 import Modal from '../components/Modal';
+import Loading from '../components/Loading';
 import '../components/Modal.css';
+import './DirectorDashboard.css';
 
 const ALL_CLASSES = ['JSS1', 'JSS2', 'JSS3', 'SS1', 'SS2', 'SS3'];
 
@@ -14,9 +14,12 @@ function DirectorDashboard() {
   const [defaulters, setDefaulters] = useState([]);
   const [classFilter, setClassFilter] = useState('');
   const [loading, setLoading] = useState(true);
+
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
-const [needsMiddleName, setNeedsMiddleName] = useState(false);
-const [newStudent, setNewStudent] = useState({ name: '', middleName: '', class: 'JSS1', admissionNumber: '' });
+  const [needsMiddleName, setNeedsMiddleName] = useState(false);
+  const [newStudent, setNewStudent] = useState({ name: '', middleName: '', class: 'JSS1', admissionNumber: '' });
+
+  const [editingStudent, setEditingStudent] = useState(null);
 
   const name = localStorage.getItem('name');
   const navigate = useNavigate();
@@ -57,23 +60,6 @@ const [newStudent, setNewStudent] = useState({ name: '', middleName: '', class: 
     return 'unpaid';
   }
 
-  async function handleAddStudent(e) {
-  e.preventDefault();
-  try {
-    await api.post('/admin/students', newStudent);
-    setNewStudent({ name: '', middleName: '', class: 'JSS1', admissionNumber: '' });
-    setNeedsMiddleName(false);
-    setIsAddStudentOpen(false);
-    fetchData();
-  } catch (err) {
-    if (err.response?.data?.needsMiddleName) {
-      setNeedsMiddleName(true);
-    } else {
-      alert(err.response?.data?.message || 'Failed to add student');
-    }
-  }
-}
-
   function formatMoney(amount) {
     return `₦${parseFloat(amount).toLocaleString()}`;
   }
@@ -81,6 +67,47 @@ const [newStudent, setNewStudent] = useState({ name: '', middleName: '', class: 
   function handleLogout() {
     localStorage.clear();
     navigate('/login');
+  }
+
+  async function handleAddStudent(e) {
+    e.preventDefault();
+    try {
+      await api.post('/admin/students', newStudent);
+      setNewStudent({ name: '', middleName: '', class: 'JSS1', admissionNumber: '' });
+      setNeedsMiddleName(false);
+      setIsAddStudentOpen(false);
+      fetchData();
+    } catch (err) {
+      if (err.response?.data?.needsMiddleName) {
+        setNeedsMiddleName(true);
+      } else {
+        alert(err.response?.data?.message || 'Failed to add student');
+      }
+    }
+  }
+
+  function openEditStudent(student) {
+    setEditingStudent({
+      id: student.id,
+      name: student.name,
+      middleName: student.middle_name || '',
+      class: student.class,
+    });
+  }
+
+  async function handleEditStudent(e) {
+    e.preventDefault();
+    try {
+      await api.patch(`/admin/students/${editingStudent.id}`, {
+        name: editingStudent.name,
+        middleName: editingStudent.middleName,
+        class: editingStudent.class,
+      });
+      setEditingStudent(null);
+      fetchData();
+    } catch (err) {
+      alert('Failed to update student');
+    }
   }
 
   if (loading) {
@@ -145,6 +172,7 @@ const [newStudent, setNewStudent] = useState({ name: '', middleName: '', class: 
               <th>Admission No.</th>
               <th>Paid / Expected</th>
               <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -160,6 +188,9 @@ const [newStudent, setNewStudent] = useState({ name: '', middleName: '', class: 
                     <span className={`status-badge status-${status}`}>
                       {status.toUpperCase()}
                     </span>
+                  </td>
+                  <td>
+                    <button className="action-btn" onClick={() => openEditStudent(student)}>Edit</button>
                   </td>
                 </tr>
               );
@@ -195,40 +226,70 @@ const [newStudent, setNewStudent] = useState({ name: '', middleName: '', class: 
       </div>
 
       <Modal isOpen={isAddStudentOpen} onClose={() => setIsAddStudentOpen(false)}>
-  <h2>Add New Student</h2>
-  <form onSubmit={handleAddStudent} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-    <input
-      type="text"
-      placeholder="Full Name"
-      value={newStudent.name}
-      onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
-      required
-    />
-    {needsMiddleName && (
-      <input
-        type="text"
-        placeholder="Middle Name (required — name already exists)"
-        value={newStudent.middleName}
-        onChange={(e) => setNewStudent({ ...newStudent, middleName: e.target.value })}
-        required
-      />
-    )}
-    <select
-      value={newStudent.class}
-      onChange={(e) => setNewStudent({ ...newStudent, class: e.target.value })}
-    >
-      {ALL_CLASSES.map((c) => <option key={c} value={c}>{c}</option>)}
-    </select>
-    <input
-      type="text"
-      placeholder="Admission Number (e.g. CHC/1153)"
-      value={newStudent.admissionNumber}
-      onChange={(e) => setNewStudent({ ...newStudent, admissionNumber: e.target.value })}
-      required
-    />
-    <button type="submit" className="btn-primary">Add Student</button>
-  </form>
-</Modal>
+        <h2>Add New Student</h2>
+        <form onSubmit={handleAddStudent} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={newStudent.name}
+            onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+            required
+          />
+          {needsMiddleName && (
+            <input
+              type="text"
+              placeholder="Middle Name (required — name already exists)"
+              value={newStudent.middleName}
+              onChange={(e) => setNewStudent({ ...newStudent, middleName: e.target.value })}
+              required
+            />
+          )}
+          <select
+            value={newStudent.class}
+            onChange={(e) => setNewStudent({ ...newStudent, class: e.target.value })}
+          >
+            {ALL_CLASSES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <input
+            type="text"
+            placeholder="Admission Number (e.g. CHC/1153)"
+            value={newStudent.admissionNumber}
+            onChange={(e) => setNewStudent({ ...newStudent, admissionNumber: e.target.value })}
+            required
+          />
+          <button type="submit" className="btn-primary">Add Student</button>
+        </form>
+      </Modal>
+
+      <Modal isOpen={!!editingStudent} onClose={() => setEditingStudent(null)}>
+        {editingStudent && (
+          <>
+            <h2>Edit Student</h2>
+            <form onSubmit={handleEditStudent} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={editingStudent.name}
+                onChange={(e) => setEditingStudent({ ...editingStudent, name: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Middle Name (optional)"
+                value={editingStudent.middleName}
+                onChange={(e) => setEditingStudent({ ...editingStudent, middleName: e.target.value })}
+              />
+              <select
+                value={editingStudent.class}
+                onChange={(e) => setEditingStudent({ ...editingStudent, class: e.target.value })}
+              >
+                {ALL_CLASSES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <button type="submit" className="btn-primary">Save Changes</button>
+            </form>
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

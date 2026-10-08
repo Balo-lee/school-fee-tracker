@@ -148,4 +148,31 @@ async function createStudent(req, res) {
   }
 }
 
-module.exports = { getMetrics, listStudents, listDefaulters, createStudent };
+async function updateStudent(req, res) {
+  const { id } = req.params;
+  const { name, middleName, class: studentClass } = req.body;
+
+  try {
+    await pool.query(
+      `UPDATE students SET
+        name = COALESCE($1, name),
+        middle_name = $2,
+        class = COALESCE($3, class)
+       WHERE id = $4`,
+      [name, middleName || null, studentClass, id],
+    );
+    res.json({ message: "Student updated" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to update student", error: err.message });
+  }
+}
+
+module.exports = {
+  getMetrics,
+  listStudents,
+  listDefaulters,
+  createStudent,
+  updateStudent,
+};
