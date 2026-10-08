@@ -14,6 +14,8 @@ function DirectorDashboard() {
   const [defaulters, setDefaulters] = useState([]);
   const [classFilter, setClassFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [savingStudent, setSavingStudent] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [needsMiddleName, setNeedsMiddleName] = useState(false);
@@ -85,6 +87,7 @@ function DirectorDashboard() {
 
   async function handleAddStudent(e) {
     e.preventDefault();
+    setSavingStudent(true);
     try {
       await api.post("/admin/students", newStudent);
       setNewStudent({
@@ -102,6 +105,8 @@ function DirectorDashboard() {
       } else {
         alert(err.response?.data?.message || "Failed to add student");
       }
+    } finally {
+      setSavingStudent(false);
     }
   }
 
@@ -124,17 +129,22 @@ function DirectorDashboard() {
 
   async function handleEditStudent(e) {
     e.preventDefault();
+    setSavingEdit(true);
     try {
-      await api.patch(`/admin/students/${editingStudent.id}`, {
+      const res = await api.patch(`/admin/students/${editingStudent.id}`, {
         name: editingStudent.name,
         middleName: editingStudent.middleName,
         class: editingStudent.class,
         admissionNumber: editingStudent.admissionNumber,
       });
+      console.log("Edit response:", res.data);
       setEditingStudent(null);
       fetchData();
     } catch (err) {
+      console.error("Edit error:", err.response?.data || err.message);
       alert(err.response?.data?.message || "Failed to update student");
+    } finally {
+      setSavingEdit(false);
     }
   }
 
@@ -373,8 +383,12 @@ function DirectorDashboard() {
             }
             required
           />
-          <button type="submit" className="btn-primary">
-            Add Student
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={savingStudent}
+          >
+            {savingStudent ? "Saving..." : "Add Student"}
           </button>
         </form>
       </Modal>
@@ -423,8 +437,12 @@ function DirectorDashboard() {
                 }
                 required
               />
-              <button type="submit" className="btn-primary">
-                Save Changes
+              <button
+                type="submit"
+                className="btn-primary"
+                disabled={savingEdit}
+              >
+                {savingEdit ? "Saving changes..." : "Save Changes"}
               </button>
             </form>
           </>
