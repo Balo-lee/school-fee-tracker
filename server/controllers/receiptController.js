@@ -1,5 +1,6 @@
 const pool = require("../db");
 const PDFDocument = require("pdfkit");
+const path = require("path");
 
 async function getReceipt(req, res) {
   const parentId = req.user.userId;
@@ -35,7 +36,7 @@ async function getReceipt(req, res) {
         .json({ message: "Not authorized to view this receipt" });
     }
 
-    const doc = new PDFDocument({ margin: 50 });
+    const doc = new PDFDocument({ size: "A4", margin: 0 });
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
@@ -45,53 +46,111 @@ async function getReceipt(req, res) {
 
     doc.pipe(res);
 
-    doc
-      .fontSize(20)
-      .fillColor("#1B4332")
-      .text("Crown Heights College", { align: "center" });
-    doc
-      .fontSize(11)
-      .fillColor("#6b6b63")
-      .text("Fee Payment Receipt", { align: "center" });
-    doc.moveDown(2);
+    const pageWidth = doc.page.width;
+    const margin = 50;
 
-    doc.fontSize(10).fillColor("#22221E");
-    doc.text(`Receipt No: ${receipt.receipt_number}`);
-    doc.text(
-      `Date: ${new Date(receipt.paid_at).toLocaleDateString("en-NG", { year: "numeric", month: "long", day: "numeric" })}`,
-    );
-    doc.moveDown();
+    // --- Header band ---
+    doc.rect(0, 0, pageWidth, 140).fill("#1B4332");
+
+    const logoPath = path.join(__dirname, "../assets/logo.png");
+    doc.image(logoPath, margin, 25, { width: 90 });
 
     doc
+      .fillColor("#FAF8F3")
+      .fontSize(22)
+      .text("Crown Heights College", margin + 110, 35);
+    doc
+      .fillColor("#C9A227")
       .fontSize(12)
+      .text("Fee Payment Receipt", margin + 110, 63);
+
+    doc
+      .fillColor("#D9D6CD")
+      .fontSize(9)
+      .text(receipt.receipt_number, pageWidth - margin - 150, 40, {
+        width: 150,
+        align: "right",
+      });
+    doc.text(
+      new Date(receipt.paid_at).toLocaleDateString("en-NG", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+      pageWidth - margin - 150,
+      55,
+      { width: 150, align: "right" },
+    );
+
+    // --- Gold divider ---
+    doc.rect(0, 140, pageWidth, 4).fill("#C9A227");
+
+    let y = 190;
+
+    // --- Student Details box ---
+    doc
+      .roundedRect(margin, y, pageWidth - margin * 2, 110, 6)
+      .lineWidth(1)
+      .stroke("#E3E6E4");
+    doc
       .fillColor("#1B4332")
-      .text("Student Details", { underline: true });
-    doc.fontSize(10).fillColor("#22221E");
+      .fontSize(13)
+      .text("Student Details", margin + 20, y + 16);
+    doc.fillColor("#22221E").fontSize(11);
     doc.text(
       `Name: ${receipt.student_name}${receipt.middle_name ? " " + receipt.middle_name : ""}`,
+      margin + 20,
+      y + 42,
     );
-    doc.text(`Class: ${receipt.class}`);
-    doc.text(`Admission No: ${receipt.admission_number}`);
-    doc.moveDown();
+    doc.text(`Class: ${receipt.class}`, margin + 20, y + 62);
+    doc.text(`Admission No: ${receipt.admission_number}`, margin + 20, y + 82);
 
+    y += 130;
+
+    // --- Payment Details box ---
     doc
-      .fontSize(12)
+      .roundedRect(margin, y, pageWidth - margin * 2, 130, 6)
+      .lineWidth(1)
+      .stroke("#E3E6E4");
+    doc
       .fillColor("#1B4332")
-      .text("Payment Details", { underline: true });
-    doc.fontSize(10).fillColor("#22221E");
-    doc.text(`Fee: ${receipt.fee_name}`);
+      .fontSize(13)
+      .text("Payment Details", margin + 20, y + 16);
+    doc.fillColor("#22221E").fontSize(11);
+    doc.text(`Fee: ${receipt.fee_name}`, margin + 20, y + 42);
     doc.text(
-      `Amount Paid: ₦${parseFloat(receipt.amount_paid).toLocaleString()}`,
+      `Paystack Reference: ${receipt.paystack_reference}`,
+      margin + 20,
+      y + 62,
     );
-    doc.text(`Paystack Reference: ${receipt.paystack_reference}`);
-    doc.moveDown(2);
 
     doc
-      .fontSize(9)
+      .fillColor("#1B4332")
+      .fontSize(20)
+      .text(
+        `₦${parseFloat(receipt.amount_paid).toLocaleString()}`,
+        margin + 20,
+        y + 88,
+      );
+    doc
+      .fillColor("#7A9B87")
+      .fontSize(11)
+      .text("PAID", pageWidth - margin - 100, y + 92, {
+        width: 80,
+        align: "right",
+      });
+
+    y += 170;
+
+    // --- Footer ---
+    doc
       .fillColor("#6b6b63")
+      .fontSize(9)
       .text(
         "This is a computer-generated receipt and does not require a signature.",
-        { align: "center" },
+        margin,
+        y,
+        { width: pageWidth - margin * 2, align: "center" },
       );
 
     doc.end();
