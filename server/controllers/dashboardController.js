@@ -150,16 +150,32 @@ async function createStudent(req, res) {
 
 async function updateStudent(req, res) {
   const { id } = req.params;
-  const { name, middleName, class: studentClass } = req.body;
+  const { name, middleName, class: studentClass, admissionNumber } = req.body;
 
   try {
+    if (admissionNumber) {
+      const dup = await pool.query(
+        `SELECT id FROM students WHERE admission_number = $1 AND id != $2`,
+        [admissionNumber, id],
+      );
+      if (dup.rows.length > 0) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "This admission number is already in use by another student",
+          });
+      }
+    }
+
     await pool.query(
       `UPDATE students SET
         name = COALESCE($1, name),
         middle_name = $2,
-        class = COALESCE($3, class)
-       WHERE id = $4`,
-      [name, middleName || null, studentClass, id],
+        class = COALESCE($3, class),
+        admission_number = COALESCE($4, admission_number)
+       WHERE id = $5`,
+      [name, middleName || null, studentClass, admissionNumber, id],
     );
     res.json({ message: "Student updated" });
   } catch (err) {
