@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from 'react-router-dom';
 import api from "../api/axios";
 import "./Login.css";
 
@@ -37,6 +37,13 @@ function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
+        <Link
+          to="/"
+          className="back-link"
+          style={{ display: "block", marginBottom: "1rem" }}
+        >
+          &larr; Back to Home
+        </Link>
         <img
           src="/logo.png"
           alt="Crown Heights College crest"

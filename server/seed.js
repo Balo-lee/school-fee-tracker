@@ -567,7 +567,8 @@ async function seed() {
           amountPaid = fee.amount;
         } else if (feeRoll < 0.8) {
           shouldPay = true;
-          amountPaid = Math.round(fee.amount * (0.2 + Math.random() * 0.6));
+          const rawAmount = fee.amount * (0.2 + Math.random() * 0.6);
+          amountPaid = Math.max(500, Math.round(rawAmount / 500) * 500);
         }
       } else {
         if (Math.random() < 0.1) {
