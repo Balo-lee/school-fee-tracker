@@ -1,14 +1,17 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../api/axios';
-import '../pages/Login.css';
-import './Register.css';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import api from "../api/axios";
+import "../pages/Login.css";
+import "./Register.css";
 
 function Register() {
   const [formData, setFormData] = useState({
-    name: '', email: '', password: '', admissionNumber: '',
+    name: "",
+    email: "",
+    password: "",
+    admissionNumber: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -18,14 +21,16 @@ function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      await api.post('/auth/register', formData);
+      await api.post("/auth/register", formData);
       setSuccess(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(
+        err.response?.data?.message || "Registration failed. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -37,8 +42,15 @@ function Register() {
         <div className="login-card register-card">
           <div className="register-success">
             <h2>Registration Successful 🎉</h2>
-            <p>Your account has been created. You can now log in to view your child's fees.</p>
-            <Link to="/login" className="btn-primary" style={{ textDecoration: 'none' }}>
+            <p>
+              Your account has been created. You can now log in to view your
+              child's fees.
+            </p>
+            <Link
+              to="/login"
+              className="btn-primary"
+              style={{ textDecoration: "none" }}
+            >
               Go to Login
             </Link>
           </div>
@@ -50,7 +62,18 @@ function Register() {
   return (
     <div className="login-page">
       <div className="login-card register-card">
-        <img src="/logo.png" alt="Crown Heights College crest" className="login-logo" />
+        <Link
+          to="/"
+          className="back-link"
+          style={{ display: "block", marginBottom: "1rem" }}
+        >
+          &larr; Back to Home
+        </Link>
+        <img
+          src="/logo.png"
+          alt="Crown Heights College crest"
+          className="login-logo"
+        />
         <h1>Parent Registration</h1>
         <p className="tagline">Register using your child's admission number</p>
 
@@ -90,7 +113,7 @@ function Register() {
           />
           {error && <p className="error-text">{error}</p>}
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Registering...' : 'Register'}
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 

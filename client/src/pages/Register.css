@@ -24,3 +24,14 @@
   color: #6b6b63;
   margin-bottom: 1.5rem;
 }
+
+.back-link {
+  display: inline-block;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
