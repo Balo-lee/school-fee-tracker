@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import "./Login.css";
 
@@ -8,6 +8,19 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const demoAccounts = [
+    { label: "Parent", email: "parent25@example.com", password: "Parent123!" },
+    {
+      label: "Principal (view-only)",
+      email: "principal@crownheights.edu.ng",
+      password: "Principal123!",
+    },
+  ];
+
+  function fillDemo(account) {
+    setEmail(account.email);
+    setPassword(account.password);
+  }
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
@@ -72,6 +85,26 @@ function Login() {
             {loading ? "Logging in..." : "Log In"}
           </button>
         </form>
+
+        <div className="demo-box">
+          <p className="demo-title">Try a demo account</p>
+          <div className="demo-buttons">
+            {demoAccounts.map((a) => (
+              <button
+                type="button"
+                key={a.label}
+                className="demo-btn"
+                onClick={() => fillDemo(a)}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+          <p className="demo-note">
+            Click one, then press Log In. Test mode: no real money moves. The
+            first load can take up to a minute while the server wakes up.
+          </p>
+        </div>
 
         <p className="login-footer">
           Parent?{" "}

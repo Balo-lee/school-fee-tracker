@@ -117,6 +117,7 @@ async function seed() {
 
   // --- Hash a shared demo password ---
   const staffPassword = await bcrypt.hash("Staff123!", 10);
+  const principalPassword = await bcrypt.hash("Principal123!", 10);
 
   // --- Insert staff accounts ---
   const directorResult = await pool.query(
@@ -147,7 +148,7 @@ async function seed() {
     [
       "Malam Salisu Danjuma",
       "principal@crownheights.edu.ng",
-      staffPassword,
+      principalPassword,
       "principal",
     ],
   );
