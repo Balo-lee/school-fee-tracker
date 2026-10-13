@@ -9,7 +9,7 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const demoAccounts = [
-    { label: "Parent", email: "parent25@example.com", password: "Parent123!" },
+    { label: "Parent", email: "parent110@example.com", password: "Parent123!" },
     {
       label: "Principal (view-only)",
       email: "principal@crownheights.edu.ng",
